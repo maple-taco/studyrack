@@ -520,6 +520,15 @@ export default function App() {
     }
   };
 
+  const removeCustomSubject = (subjectToRemove) => {
+    const currentCustoms = Array.isArray(userData?.customSubjects) ? userData.customSubjects : [];
+    const nextCustoms = currentCustoms.filter((s) => s !== subjectToRemove);
+    updateUserProfile({ customSubjects: nextCustoms });
+    if (selectedSubject === subjectToRemove) {
+      setSelectedSubject('');
+    }
+  };
+
   const openModal = (type) => {
     setModalInput('');
     setActiveModal(type);
@@ -988,6 +997,32 @@ export default function App() {
             {t.save}
           </button>
         </form>
+
+        {Array.isArray(userData?.customSubjects) && userData.customSubjects.length > 0 && (
+          <div className="w-full max-w-lg mt-6 bg-slate-900/80 border border-white/20 rounded-2xl p-4 max-h-52 overflow-y-auto">
+            <p className="text-sky-200 text-xs font-semibold uppercase tracking-wider mb-3">
+              Custom Subjects
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {userData.customSubjects.map((sub) => (
+                <div
+                  key={sub}
+                  className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-full border border-slate-600 text-sm font-medium"
+                >
+                  <span>{sub}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeCustomSubject(sub)}
+                    aria-label={`Remove ${sub}`}
+                    className="text-slate-400 hover:text-rose-400 transition p-0.5"
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -1023,17 +1058,35 @@ export default function App() {
             {t.chooseSubject}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {getSubjects().map((sub) => (
-              <button
-                key={sub}
-                onClick={() => setSelectedSubject(sub)}
-                className={`py-4 px-4 font-bold text-center border-2 transition-all ${
-                  selectedSubject === sub ? ui.subjectBtnActive : ui.subjectBtnIdle
-                }`}
-              >
-                {t.subjects[sub] || sub}
-              </button>
-            ))}
+            {getSubjects().map((sub) => {
+              const isCustom = Array.isArray(userData?.customSubjects) && userData.customSubjects.includes(sub);
+              return (
+                <div key={sub} className="relative">
+                  <button
+                    onClick={() => setSelectedSubject(sub)}
+                    className={`w-full py-4 px-4 font-bold text-center border-2 transition-all ${
+                      selectedSubject === sub ? ui.subjectBtnActive : ui.subjectBtnIdle
+                    }`}
+                  >
+                    {t.subjects[sub] || sub}
+                  </button>
+                  {isCustom && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeCustomSubject(sub);
+                      }}
+                      aria-label={`Remove ${sub}`}
+                      title={`Remove ${sub}`}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 hover:bg-rose-400 text-white rounded-full flex items-center justify-center shadow-md transition"
+                    >
+                      <XIcon size={12} />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
