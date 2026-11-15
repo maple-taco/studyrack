@@ -1,4 +1,4 @@
-import { getLanguageFromCountry } from './i18n';
+import { getLanguageFromCountry } from './i18n.js';
 
 // Standalone local quiz & feedback generator for Study Rack
 // Provides 120+ unique questions per subject, matches question difficulty to grade level,
